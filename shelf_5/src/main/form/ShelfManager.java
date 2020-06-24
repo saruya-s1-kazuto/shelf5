@@ -745,59 +745,91 @@ public class ShelfManager extends JPanel {
 
 			editbtn.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					/*JDialog dialog = new JDialog(shelfMain);
-					dialog.setBounds(400, 200, 400, 300);
-					JTextField editTitle = new JTextField();
-					JTextField editPerson = new JTextField();
-					JButton updatebtn = new JButton("更新");
-					editTitle.setText("title");
-					editPerson.setText("person");
-					editTitle.setBounds(0, 0, 400, 50);
-					editPerson.setBounds(0, 200, 400, 50);
-					updatebtn.setBounds(150, 230, 70, 30);
-					dialog.add(updatebtn);
-					dialog.add(editTitle);
-					dialog.add(editPerson);
-					
-					//updatebtn.setBounds(150, 200, 70, 30);
-					
-					dialog.setVisible(true);*/
 
 					if (tabPane.getSelectedIndex() == 0 && Booktbl.getSelectedRow() != -1) {
 						JDialog dialog = new JDialog();
 						dialog.showDialog();
-						dialog.updateData(0, dialog.getTitle(), dialog.getPerson(), Booktbl.getSelectedRow());
-						for (int cnt = 0; cnt < bookCount; cnt++) {
-							BookTableData[cnt][0] = String.valueOf(cnt + 1); // No
-							BookTableData[cnt][1] = bookshelf.get(cnt).getTitle(); // タイトル
-							BookTableData[cnt][2] = bookshelf.get(cnt).getPerson(); // 作者
+						if (dialog.getTitle() != null) {
+							if (dialog.getPerson() != null) {
+								if (dialog.getTitle().length() <= Book.TITLE_LENGTH &&
+										dialog.getPerson().length() <= Book.CREATER_LENGTH &&
+										dialog.getTitle().equals("") == false &&
+										dialog.getPerson().equals("") == false) {
+									int option = JOptionPane.showConfirmDialog(null, "変更しますか？", "",
+											JOptionPane.YES_NO_OPTION);
+									if (option == JOptionPane.YES_OPTION) {
+										dialog.updateData(0, dialog.getTitle(), dialog.getPerson(),
+												Booktbl.getSelectedRow());
+										for (int cnt = 0; cnt < bookCount; cnt++) {
+											BookTableData[cnt][0] = String.valueOf(cnt + 1); // No
+											BookTableData[cnt][1] = bookshelf.get(cnt).getTitle(); // タイトル
+											BookTableData[cnt][2] = bookshelf.get(cnt).getPerson(); // 作者
+										}
+										bsp.removeAll();
+										Bookmodel = new DefaultTableModel(BookTableData, BookcolumnNames);
+										Booktbl = new JTable(Bookmodel);
+										Booktbl.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+										bsp = new JScrollPane(Booktbl);
+										tabPane.setComponentAt(0, bsp);
+										tabPane.setSelectedIndex(0);
+									}
+								}
+								if (dialog.getTitle().equals("")) {
+									JOptionPane.showMessageDialog(null, "題名が未入力です。");
+								}
+								if (dialog.getPerson().equals("")) {
+									JOptionPane.showMessageDialog(null, "作者が未入力です。");
+								}
+								if (dialog.getTitle().length() > Book.TITLE_LENGTH) {
+									JOptionPane.showMessageDialog(null, "題名は" + Book.TITLE_LENGTH + "文字以下で入力してください。");
+								}
+								if (dialog.getPerson().length() > Book.CREATER_LENGTH) {
+									JOptionPane.showMessageDialog(null, "作者は" + Book.CREATER_LENGTH + "文字以下で入力してください。");
+								}
+							}
 						}
-						bsp.removeAll();
-						Bookmodel = new DefaultTableModel(BookTableData, BookcolumnNames);
-						Booktbl = new JTable(Bookmodel);
-						Booktbl.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-						bsp = new JScrollPane(Booktbl);
-						tabPane.setComponentAt(0, bsp);
-						tabPane.setSelectedIndex(0);
 					} else if (tabPane.getSelectedIndex() == 0 && Booktbl.getSelectedRow() == -1) {
 						JOptionPane.showMessageDialog(null, "編集対象を選択してください。");
 					}
 					if (tabPane.getSelectedIndex() == 1 && Cdtbl.getSelectedRow() != -1) {
+
 						JDialog dialog = new JDialog();
 						dialog.showDialog();
-						dialog.updateData(1, dialog.getTitle(), dialog.getPerson(), Cdtbl.getSelectedRow());
-						for (int cnt = 0; cnt < cdCount; cnt++) {
-							CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
-							CdTableData[cnt][1] = cdshelf.get(cnt).getTitle(); // タイトル
-							CdTableData[cnt][2] = cdshelf.get(cnt).getPerson(); // 作者
+						if (dialog.getTitle() != null) {
+							if (dialog.getPerson() != null) {
+								if (dialog.getTitle().length() <= Cd.SONG_LENGTH &&
+										dialog.getPerson().length() <= Cd.SINGER_LENGTH &&
+										dialog.getTitle().equals("") == false &&
+										dialog.getPerson().equals("") == false) {
+									dialog.updateData(1, dialog.getTitle(), dialog.getPerson(), Cdtbl.getSelectedRow());
+									for (int cnt = 0; cnt < cdCount; cnt++) {
+										CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
+										CdTableData[cnt][1] = cdshelf.get(cnt).getTitle(); // タイトル
+										CdTableData[cnt][2] = cdshelf.get(cnt).getPerson(); // 作者
+									}
+									csp.removeAll();
+									Cdmodel = new DefaultTableModel(CdTableData, CdcolumnNames);
+									Cdtbl = new JTable(Cdmodel);
+									Cdtbl.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+									csp = new JScrollPane(Cdtbl);
+									tabPane.setComponentAt(1, csp);
+									tabPane.setSelectedIndex(1);
+
+								}
+								if (dialog.getTitle().equals("")) {
+									JOptionPane.showMessageDialog(null, "曲名が未入力です。");
+								}
+								if (dialog.getPerson().equals("")) {
+									JOptionPane.showMessageDialog(null, "歌手が未入力です。");
+								}
+								if (dialog.getTitle().length() > Book.TITLE_LENGTH) {
+									JOptionPane.showMessageDialog(null, "題名は" + Cd.SONG_LENGTH + "文字以下で入力してください。");
+								}
+								if (dialog.getPerson().length() > Book.CREATER_LENGTH) {
+									JOptionPane.showMessageDialog(null, "作者は" + Cd.SINGER_LENGTH + "文字以下で入力してください。");
+								}
+							}
 						}
-						csp.removeAll();
-						Cdmodel = new DefaultTableModel(CdTableData, CdcolumnNames);
-						Cdtbl = new JTable(Cdmodel);
-						Cdtbl.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-						csp = new JScrollPane(Cdtbl);
-						tabPane.setComponentAt(1, csp);
-						tabPane.setSelectedIndex(1);
 					} else if (tabPane.getSelectedIndex() == 1 && Cdtbl.getSelectedRow() == -1) {
 						JOptionPane.showMessageDialog(null, "編集対象を選択してください。");
 					}
