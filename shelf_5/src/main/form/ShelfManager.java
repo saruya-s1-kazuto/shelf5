@@ -143,7 +143,7 @@ public class ShelfManager extends JPanel {
 					int option = JOptionPane.showConfirmDialog(null, "本当に削除しますか？", "", JOptionPane.YES_NO_OPTION);
 					if (option == JOptionPane.YES_OPTION && tabPane.getSelectedIndex() == 0) {
 						// 全削除
-						if (deleteAllBooks()) {
+						if (deleteAll()) {
 							JOptionPane.showMessageDialog(null, "全削除しました。");
 
 							// 再描画
@@ -154,7 +154,7 @@ public class ShelfManager extends JPanel {
 					}
 					if (option == JOptionPane.YES_OPTION && tabPane.getSelectedIndex() == 1) {
 						// 全削除
-						if (deleteAllCds()) {
+						if (deleteAll()) {
 							JOptionPane.showMessageDialog(null, "全削除しました。");
 
 							// 再描画
@@ -174,7 +174,7 @@ public class ShelfManager extends JPanel {
 					if (option == JOptionPane.YES_OPTION && tabPane.getSelectedIndex() == 0) {
 						int index = Booktbl.getSelectedRow();
 						if (index != -1) {
-							if (deleteOneBook(index)) {
+							if (deleteOne(index)) {
 								JOptionPane.showMessageDialog(null, "削除しました。");
 								SetMode(main.form.Common.Mode.DELETE);
 							}
@@ -185,7 +185,7 @@ public class ShelfManager extends JPanel {
 					if (option == JOptionPane.YES_OPTION && tabPane.getSelectedIndex() == 1) {
 						int index = Cdtbl.getSelectedRow();
 						if (index != -1) {
-							if (deleteOneCd(index)) {
+							if (deleteOne(index)) {
 								JOptionPane.showMessageDialog(null, "削除しました。");
 								SetMode(main.form.Common.Mode.DELETE);
 								tabPane.setSelectedIndex(1);
@@ -407,7 +407,6 @@ public class ShelfManager extends JPanel {
 		if (inputChk) {
 			// 本の生成
 			Cd cd = new Cd();
-
 			if (cd.setTitle(texts[2].getText()) && cd.setPerson(texts[3].getText())) {
 				// 本棚への登録
 				if (cdshelf.add(cd)) {
@@ -424,7 +423,6 @@ public class ShelfManager extends JPanel {
 		} else {
 			return false;
 		}
-
 		return false;
 
 	}
@@ -432,35 +430,17 @@ public class ShelfManager extends JPanel {
 	/*
 	 * 全ての本削除
 	 */
-	private boolean deleteAllBooks() {
-		if (bookshelf.deleteAll()) {
+	private boolean deleteAll() {
+		if (shelf[tabPane.getSelectedIndex()].deleteAll()) {
 			return true;
 		} else {
-			JOptionPane.showMessageDialog(null, "削除できる本はありません。");
+			JOptionPane.showMessageDialog(null, "削除対象はありません。");
 			return false;
 		}
 	}
 
-	private boolean deleteOneBook(int index) {
-		if (bookshelf.deleteOne(index)) {
-			return true;
-		} else {
-			JOptionPane.showMessageDialog(null, "削除できる本はありません。");
-			return false;
-		}
-	}
-
-	private boolean deleteAllCds() {
-		if (cdshelf.deleteAll()) {
-			return true;
-		} else {
-			JOptionPane.showMessageDialog(null, "削除できる本はありません。");
-			return false;
-		}
-	}
-
-	private boolean deleteOneCd(int index) {
-		if (cdshelf.deleteOne(index)) {
+	private boolean deleteOne(int index) {
+		if (shelf[tabPane.getSelectedIndex()].deleteOne(index)) {
 			return true;
 		} else {
 			JOptionPane.showMessageDialog(null, "削除できる本はありません。");
@@ -542,16 +522,17 @@ public class ShelfManager extends JPanel {
 					if (searchText.getText().equals("") == false) {
 						if (termBox.getSelectedIndex() == 0 && tabPane.getSelectedIndex() == 0) {//book全文
 							if (choiceBox.getSelectedIndex() == 0) {//title
-								int SearchedBookCount = ConnectMySQL.countData(0, "all", "title", searchText.getText());
+								int SearchedBookCount = ConnectMySQL.countData("book", "all", "title",
+										searchText.getText());
 								String BookTableData[][] = new String[SearchedBookCount][BookcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(0, "all", "title",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("book", "all", "title",
 										searchText.getText()); cnt++) {
 									BookTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									BookTableData[cnt][1] = bookshelf
-											.searchTitle(0, "all", "title", cnt, searchText.getText())
+											.searchTitle("book", "all", "title", cnt, searchText.getText())
 											.getTitle(); // タイトル
 									BookTableData[cnt][2] = bookshelf
-											.searchTitle(0, "all", "title", cnt, searchText.getText())
+											.searchTitle("book", "all", "title", cnt, searchText.getText())
 											.getPerson(); // 作者
 								}
 								//System.out.println("BOOK全文検索タイトル");
@@ -563,16 +544,18 @@ public class ShelfManager extends JPanel {
 								tabPane.setComponentAt(0, bsp);
 
 							} else {//person
-								int SearchedBookCount = ConnectMySQL.countData(0, "all", "person",
+								int SearchedBookCount = ConnectMySQL.countData("book", "all", "person",
 										searchText.getText());
 								String BookTableData[][] = new String[SearchedBookCount][BookcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(0, "all", "person",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("book", "all", "person",
 										searchText.getText()); cnt++) {
 									BookTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									BookTableData[cnt][1] = bookshelf
-											.searchPerson(0, "all", "person", cnt, searchText.getText()).getTitle(); // タイトル
+											.searchPerson("book", "all", "person", cnt, searchText.getText())
+											.getTitle(); // タイトル
 									BookTableData[cnt][2] = bookshelf
-											.searchPerson(0, "all", "person", cnt, searchText.getText()).getPerson(); // 作者
+											.searchPerson("book", "all", "person", cnt, searchText.getText())
+											.getPerson(); // 作者
 								}
 								//System.out.println("BOOK全文検索人物");
 								bsp.removeAll();
@@ -584,17 +567,17 @@ public class ShelfManager extends JPanel {
 							}
 						} else if (termBox.getSelectedIndex() == 0 && tabPane.getSelectedIndex() == 1) {//cd全文
 							if (choiceBox.getSelectedIndex() == 0) {//song
-								int SearchedCdCount = ConnectMySQL.countData(1, "all", "person",
+								int SearchedCdCount = ConnectMySQL.countData("cd", "all", "title",
 										searchText.getText());
 								String CdTableData[][] = new String[SearchedCdCount][CdcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(1, "all", "title",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("cd", "all", "title",
 										searchText.getText()); cnt++) {
 									CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									CdTableData[cnt][1] = cdshelf
-											.searchTitle(1, "all", "title", cnt, searchText.getText())
+											.searchTitle("cd", "all", "title", cnt, searchText.getText())
 											.getTitle(); // タイトル
 									CdTableData[cnt][2] = cdshelf
-											.searchTitle(1, "all", "title", cnt, searchText.getText())
+											.searchTitle("cd", "all", "title", cnt, searchText.getText())
 											.getPerson(); // 作者
 								}
 								//System.out.println("CD全文検索タイトル");
@@ -606,17 +589,17 @@ public class ShelfManager extends JPanel {
 								tabPane.setComponentAt(1, csp);
 
 							} else {//singer
-								int SearchedCdCount = ConnectMySQL.countData(1, "all", "person",
+								int SearchedCdCount = ConnectMySQL.countData("cd", "all", "person",
 										searchText.getText());
 								String CdTableData[][] = new String[SearchedCdCount][CdcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(1, "all", "person",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("cd", "all", "person",
 										searchText.getText()); cnt++) {
 									CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									CdTableData[cnt][1] = cdshelf
-											.searchPerson(1, "all", "person", cnt, searchText.getText())
+											.searchPerson("cd", "all", "person", cnt, searchText.getText())
 											.getTitle(); // タイトル
 									CdTableData[cnt][2] = cdshelf
-											.searchPerson(1, "all", "person", cnt, searchText.getText())
+											.searchPerson("cd", "all", "person", cnt, searchText.getText())
 											.getPerson(); // 作者
 								}
 								//System.out.println("CD全文検索人物");
@@ -629,16 +612,18 @@ public class ShelfManager extends JPanel {
 							}
 						} else if (termBox.getSelectedIndex() == 1 && tabPane.getSelectedIndex() == 0) {//book部分
 							if (choiceBox.getSelectedIndex() == 0) {//title
-								int SearchedBookCount = ConnectMySQL.countData(0, "parts", "title",
+								int SearchedBookCount = ConnectMySQL.countData("book", "parts", "title",
 										searchText.getText());
 								String BookTableData[][] = new String[SearchedBookCount][BookcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(0, "parts", "title",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("cd", "parts", "title",
 										searchText.getText()); cnt++) {
 									BookTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									BookTableData[cnt][1] = bookshelf
-											.searchTitle(0, "parts", "title", cnt, searchText.getText()).getTitle(); // タイトル
+											.searchTitle("book", "parts", "title", cnt, searchText.getText())
+											.getTitle(); // タイトル
 									BookTableData[cnt][2] = bookshelf
-											.searchTitle(0, "parts", "title", cnt, searchText.getText()).getPerson(); // 作者
+											.searchTitle("book", "parts", "title", cnt, searchText.getText())
+											.getPerson(); // 作者
 								}
 								//System.out.println("BOOK部分検索タイトル");
 								bsp.removeAll();
@@ -649,16 +634,18 @@ public class ShelfManager extends JPanel {
 								tabPane.setComponentAt(0, bsp);
 
 							} else {//author
-								int SearchedBookCount = ConnectMySQL.countData(0, "parts", "person",
+								int SearchedBookCount = ConnectMySQL.countData("book", "parts", "person",
 										searchText.getText());
 								String BookTableData[][] = new String[SearchedBookCount][BookcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(0, "parts", "person",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("book", "parts", "person",
 										searchText.getText()); cnt++) {
 									BookTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									BookTableData[cnt][1] = bookshelf
-											.searchPerson(0, "parts", "person", cnt, searchText.getText()).getTitle(); // タイトル
+											.searchPerson("book", "parts", "person", cnt, searchText.getText())
+											.getTitle(); // タイトル
 									BookTableData[cnt][2] = bookshelf
-											.searchPerson(0, "parts", "person", cnt, searchText.getText()).getPerson(); // 作者
+											.searchPerson("book", "parts", "person", cnt, searchText.getText())
+											.getPerson(); // 作者
 								}
 								//System.out.println("BOOK部分検索人物");
 								bsp.removeAll();
@@ -670,17 +657,17 @@ public class ShelfManager extends JPanel {
 							}
 						} else if (termBox.getSelectedIndex() == 1 && tabPane.getSelectedIndex() == 1) {//cd部分
 							if (choiceBox.getSelectedIndex() == 0) {//song
-								int SearchedCdCount = ConnectMySQL.countData(1, "parts", "title",
+								int SearchedCdCount = ConnectMySQL.countData("cd", "parts", "title",
 										searchText.getText());
 								String CdTableData[][] = new String[SearchedCdCount][CdcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(1, "parts", "title",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("cd", "parts", "title",
 										searchText.getText()); cnt++) {
 									CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									CdTableData[cnt][1] = cdshelf
-											.searchTitle(1, "parts", "title", cnt, searchText.getText())
+											.searchTitle("cd", "parts", "title", cnt, searchText.getText())
 											.getTitle(); // タイトル
 									CdTableData[cnt][2] = cdshelf
-											.searchTitle(1, "parts", "title", cnt, searchText.getText())
+											.searchTitle("cd", "parts", "title", cnt, searchText.getText())
 											.getPerson(); // 作者
 								}
 								//System.out.println("CD部分検索タイトル");
@@ -691,17 +678,17 @@ public class ShelfManager extends JPanel {
 								csp = new JScrollPane(Cdtbl);
 								tabPane.setComponentAt(1, csp);
 							} else {//singer
-								int SearchedCdCount = ConnectMySQL.countData(1, "parts", "person",
+								int SearchedCdCount = ConnectMySQL.countData("cd", "parts", "person",
 										searchText.getText());
 								String CdTableData[][] = new String[SearchedCdCount][CdcolumnNames.length];
-								for (int cnt = 0; cnt < ConnectMySQL.countData(1, "parts", "person",
+								for (int cnt = 0; cnt < ConnectMySQL.countData("cd", "parts", "person",
 										searchText.getText()); cnt++) {
 									CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
 									CdTableData[cnt][1] = cdshelf
-											.searchPerson(1, "parts", "person", cnt, searchText.getText())
+											.searchPerson("cd", "parts", "person", cnt, searchText.getText())
 											.getTitle(); // タイトル
 									CdTableData[cnt][2] = cdshelf
-											.searchPerson(1, "parts", "person", cnt, searchText.getText())
+											.searchPerson("cd", "parts", "person", cnt, searchText.getText())
 											.getPerson(); // 作者
 								}
 								//System.out.println("CD部分検索人物");
@@ -758,7 +745,7 @@ public class ShelfManager extends JPanel {
 									int option = JOptionPane.showConfirmDialog(null, "変更しますか？", "",
 											JOptionPane.YES_NO_OPTION);
 									if (option == JOptionPane.YES_OPTION) {
-										dialog.updateData(0, dialog.getTitle(), dialog.getPerson(),
+										dialog.updateData("book", dialog.getTitle(), dialog.getPerson(),
 												Booktbl.getSelectedRow());
 										for (int cnt = 0; cnt < bookCount; cnt++) {
 											BookTableData[cnt][0] = String.valueOf(cnt + 1); // No
@@ -792,7 +779,6 @@ public class ShelfManager extends JPanel {
 						JOptionPane.showMessageDialog(null, "編集対象を選択してください。");
 					}
 					if (tabPane.getSelectedIndex() == 1 && Cdtbl.getSelectedRow() != -1) {
-
 						JDialog dialog = new JDialog();
 						dialog.showDialog();
 						if (dialog.getTitle() != null) {
@@ -801,20 +787,24 @@ public class ShelfManager extends JPanel {
 										dialog.getPerson().length() <= Cd.SINGER_LENGTH &&
 										dialog.getTitle().equals("") == false &&
 										dialog.getPerson().equals("") == false) {
-									dialog.updateData(1, dialog.getTitle(), dialog.getPerson(), Cdtbl.getSelectedRow());
-									for (int cnt = 0; cnt < cdCount; cnt++) {
-										CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
-										CdTableData[cnt][1] = cdshelf.get(cnt).getTitle(); // タイトル
-										CdTableData[cnt][2] = cdshelf.get(cnt).getPerson(); // 作者
+									int option = JOptionPane.showConfirmDialog(null, "変更しますか？", "",
+											JOptionPane.YES_NO_OPTION);
+									if (option == JOptionPane.YES_OPTION) {
+										dialog.updateData("cd", dialog.getTitle(), dialog.getPerson(),
+												Cdtbl.getSelectedRow());
+										for (int cnt = 0; cnt < cdCount; cnt++) {
+											CdTableData[cnt][0] = String.valueOf(cnt + 1); // No
+											CdTableData[cnt][1] = cdshelf.get(cnt).getTitle(); // タイトル
+											CdTableData[cnt][2] = cdshelf.get(cnt).getPerson(); // 作者
+										}
+										csp.removeAll();
+										Cdmodel = new DefaultTableModel(CdTableData, CdcolumnNames);
+										Cdtbl = new JTable(Cdmodel);
+										Cdtbl.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+										csp = new JScrollPane(Cdtbl);
+										tabPane.setComponentAt(1, csp);
+										tabPane.setSelectedIndex(1);
 									}
-									csp.removeAll();
-									Cdmodel = new DefaultTableModel(CdTableData, CdcolumnNames);
-									Cdtbl = new JTable(Cdmodel);
-									Cdtbl.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-									csp = new JScrollPane(Cdtbl);
-									tabPane.setComponentAt(1, csp);
-									tabPane.setSelectedIndex(1);
-
 								}
 								if (dialog.getTitle().equals("")) {
 									JOptionPane.showMessageDialog(null, "曲名が未入力です。");

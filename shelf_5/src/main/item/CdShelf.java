@@ -9,37 +9,39 @@ public class CdShelf extends Shelf {
 	public static final String NAME = "CD";
 
 	public boolean add(Cd cd) {
-		return addData(cd);
+		return addData("INSERT INTO cd (song,singer) VALUES ('" + cd.title + "','" + cd.person + "');");
 	}
 
 	public boolean deleteAll() {
-		deleteAllSQL(1);
-		return true;
+		String sql1 = "DELETE FROM cd;";
+		String sql2 = "TRUNCATE TABLE cd;";
+		return ConnectMySQL.deleteAllData(sql1,sql2);
 	}
 
 	@Override
 	public boolean deleteOne(int i) {
-		ConnectMySQL.deleteData(i, 1);
+		ConnectMySQL.deleteData(i, "cd");
 		return true;
 	}
 
 	@Override
 	public Production get(int index) {
-		return ConnectMySQL.getData(1, index);
+		products = ConnectMySQL.getData("cd", index);
+		return products[index];
 	}
 
 	@Override
 	public int getCount() {
-		return ConnectMySQL.countData(1, "normal", "", "@@@");
+		return ConnectMySQL.countData("cd", "normal", "", "@@@");
 	}
 
 	@Override
-	public Production searchTitle(int id, String terms, String choice, int index, String text) {
-		return ConnectMySQL.searchTitle(1, terms, choice, index, text);
+	public Production searchTitle(String production, String terms, String choice, int index, String text) {
+		return ConnectMySQL.searchTitle(production, terms, choice, index, text);
 	}
 
 	@Override
-	public Production searchPerson(int id, String terms, String choice, int index, String text) {
-		return ConnectMySQL.searchPerson(1, terms, choice, index, text);
+	public Production searchPerson(String production, String terms, String choice, int index, String text) {
+		return ConnectMySQL.searchPerson(production, terms, choice, index, text);
 	}
 }
